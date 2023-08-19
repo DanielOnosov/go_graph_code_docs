@@ -1,0 +1,10 @@
+strict digraph {
+
+
+	"2" [ label="red",  weight=0 ];
+
+	"1" [ fontcolor="orange", height="2", label="/routes/node.go", width="2",  weight=0 ];
+
+	"1" -> "2" [ color="red",  weight=0 ];
+
+}
