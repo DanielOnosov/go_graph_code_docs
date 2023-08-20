@@ -2,6 +2,7 @@ package docParser
 
 import (
 	"github.com/DaksinWorld/go_graph_code_docs/structs"
+	"github.com/DaksinWorld/go_graph_code_docs/themes"
 	"github.com/DaksinWorld/go_graph_code_docs/utils"
 	"github.com/fatih/color"
 	"io/ioutil"
@@ -15,6 +16,8 @@ type Parser struct {
 	Path         string
 	OutputName   string
 	OutputFolder string
+	Title        string
+	Theme        themes.Theme
 }
 
 func initParser(path string, outputFolder string, outputName string) *Parser {
@@ -25,7 +28,7 @@ func Parse(path string, outputFolder string, outputName string) *Parser {
 	return initParser(path, outputFolder, outputName)
 }
 
-func (p *Parser) Generate(params ...[]structs.Attr) {
+func (p *Parser) Generate() {
 	entries, err := getChildren(p.Path, "")
 
 	if err != nil {
@@ -90,8 +93,16 @@ func (p *Parser) Generate(params ...[]structs.Attr) {
 		c := color.New(color.BgRed, color.Bold, color.FgHiWhite)
 		c.Println("Can't create graph, no data were collected")
 	} else {
-		utils.GenerateChart(nodes, edges, p.OutputFolder, p.OutputName, params...)
+		utils.GenerateChart(nodes, edges, p.OutputFolder, p.OutputName, p.Title, p.Theme)
 	}
+}
+
+func (p *Parser) AddTitle(title string) {
+	p.Title = title
+}
+
+func (p *Parser) AddTheme(theme themes.Theme) {
+	p.Theme = theme
 }
 
 func removePrefix(s string, p string, v string) string {

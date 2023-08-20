@@ -8,5 +8,9 @@ import (
 func main() {
 	parser := docParser.Parse("./app", "output", "graph")
 
-	parser.Generate(themes.DarkTheme...)
+	parser.AddTitle("Process of node interaction")
+
+	parser.AddTheme(themes.DarkTheme)
+
+	parser.Generate()
 }

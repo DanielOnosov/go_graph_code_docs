@@ -2,6 +2,11 @@ package themes
 
 import "github.com/DaksinWorld/go_graph_code_docs/structs"
 
+type Theme struct {
+	Name        string
+	CollOfAttrs [][]structs.Attr
+}
+
 var NodeTemplate = []structs.Attr{
 	{Key: "height", Value: "2"},
 	{Key: "shape", Value: "box"},
@@ -20,4 +25,4 @@ var EdgeTemplate = []structs.Attr{
 	{Key: "fontsize", Value: "10"},
 }
 
-var DarkTheme = [][]structs.Attr{NodeTemplate, EdgeTemplate}
+var DarkTheme = Theme{Name: "DarkTheme", CollOfAttrs: [][]structs.Attr{NodeTemplate, EdgeTemplate}}

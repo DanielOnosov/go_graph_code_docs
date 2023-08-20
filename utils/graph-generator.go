@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/DaksinWorld/go_graph_code_docs/structs"
+	"github.com/DaksinWorld/go_graph_code_docs/themes"
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
 	"github.com/fatih/color"
@@ -12,22 +13,34 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 )
 
-func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder string, outputName string, params ...[]structs.Attr) {
+func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder string, outputName string, title string, theme themes.Theme) {
 	g := graph.New(graph.StringHash, graph.Directed())
+	var titleOfGraph string
+
+	if title == "" {
+		titleOfGraph = "My Graph"
+	} else {
+		titleOfGraph = title
+	}
 
 	for _, node := range nodes {
 		var attrs []func(properties *graph.VertexProperties)
 
-		if len(params) >= 1 {
-			for _, a := range params[0] {
+		if len(theme.CollOfAttrs) >= 1 {
+			for _, a := range theme.CollOfAttrs[0] {
 				attrs = append(attrs, graph.VertexAttribute(a.Key, a.Value))
 			}
 		}
 
 		for _, attr := range node.Attributes {
-			attrs = append(attrs, graph.VertexAttribute(attr.Key, attr.Value))
+			if strings.ToLower(attr.Key) == "description" {
+				node.Label += "\n" + attr.Value
+			} else {
+				attrs = append(attrs, graph.VertexAttribute(attr.Key, attr.Value))
+			}
 		}
 
 		attrs = append(attrs, graph.VertexAttribute("label", node.Label))
@@ -38,8 +51,8 @@ func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder stri
 	for _, edge := range edges {
 		var attrs []func(*graph.EdgeProperties)
 
-		if len(params) >= 2 {
-			for _, a := range params[1] {
+		if len(theme.CollOfAttrs) >= 2 {
+			for _, a := range theme.CollOfAttrs[1] {
 				attrs = append(attrs, graph.EdgeAttribute(a.Key, a.Value))
 			}
 		}
@@ -59,7 +72,22 @@ func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder stri
 		fmt.Println(err.Error())
 	}
 
-	err = draw.DOT(g, file, draw.GraphAttribute("rankdir", "LR"), draw.GraphAttribute("bgcolor", "#111111"))
+	var bgcolor = "#ffffff"
+	var fontcolor = "#111111"
+
+	if theme.Name == "DarkTheme" {
+		bgcolor = "#111111"
+		fontcolor = "#ffffff"
+	}
+
+	err = draw.DOT(g, file,
+		draw.GraphAttribute("rankdir", "LR"),
+		draw.GraphAttribute("labelloc", "top"),
+		draw.GraphAttribute("fontname", "Arial"),
+		draw.GraphAttribute("bgcolor", bgcolor),
+		draw.GraphAttribute("fontcolor", fontcolor),
+		draw.GraphAttribute("label", titleOfGraph),
+	)
 
 	if err != nil {
 		fmt.Println(err.Error())
