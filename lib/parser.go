@@ -1,9 +1,9 @@
-package lib
+package main
 
 import (
+	"github.com/DaksinWorld/go_graph_code_docs/structs"
+	"github.com/DaksinWorld/go_graph_code_docs/utils"
 	"github.com/fatih/color"
-	"graph-docs-golang/structs"
-	"graph-docs-golang/utils"
 	"io/ioutil"
 	"log"
 	"os"
