@@ -20,6 +20,7 @@ var NodeTemplate = []structs.Attr{
 }
 var EdgeTemplate = []structs.Attr{
 	{Key: "color", Value: "#CCCCCC"},
+	{Key: "fontcolor", Value: "#CCCCCC"},
 	{Key: "fontname", Value: "Montserrat"},
 	{Key: "fontweight", Value: "700"},
 	{Key: "fontsize", Value: "10"},
