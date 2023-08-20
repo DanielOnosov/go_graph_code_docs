@@ -9,7 +9,7 @@ type Element struct {
 
 type Node struct {
 	Attributes []Attr
-	Id         int
+	Id         string
 	Label      string
 }
 
@@ -20,6 +20,6 @@ type Attr struct {
 
 type Edge struct {
 	Attributes []Attr
-	From       int
-	To         int
+	From       string
+	To         string
 }

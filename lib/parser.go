@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"github.com/fatih/color"
 	"graph-docs-golang/structs"
 	"graph-docs-golang/utils"
 	"io/ioutil"
@@ -11,15 +12,17 @@ import (
 )
 
 type Parser struct {
-	Path string
+	Path         string
+	OutputName   string
+	OutputFolder string
 }
 
-func InitParser(path string) *Parser {
-	return &Parser{Path: path}
+func InitParser(path string, outputFolder string, outputName string) *Parser {
+	return &Parser{Path: path, OutputFolder: outputFolder, OutputName: outputName}
 }
 
-func Parse(path string) *Parser {
-	return InitParser(path)
+func Parse(path string, outputFolder string, outputName string) *Parser {
+	return InitParser(path, outputFolder, outputName)
 }
 
 func (p *Parser) Generate() {
@@ -32,8 +35,6 @@ func (p *Parser) Generate() {
 	var nodes []structs.Node
 	var edges []structs.Edge
 
-	id := 0
-
 	for _, entry := range entries {
 		content, err := ioutil.ReadFile(entry.Path)
 		if err != nil {
@@ -42,67 +43,57 @@ func (p *Parser) Generate() {
 
 		contentStr := string(content)
 
-		pattern := `//\s*C##\s*(.*?):\s*(.*?)\n`
+		pattern := `//\s*C#\s*(.*?)\s*->\s*(.*?)\n`
 		re := regexp.MustCompile(pattern)
 		matches := re.FindStringSubmatch(contentStr)
 
-		// Desc patterns
-		descPatter := `//\s*C##\s*(.*?)=\s*(.*?):\s*(.*?)(?:\n|$)`
-		descRe := regexp.MustCompile(descPatter)
-		descMatches := descRe.FindAllStringSubmatch(contentStr, -1)
-
 		if len(matches) > 2 {
 			from := RemovePrefix(entry.Path, p.Path, "")
-			id += 1
+			relPathToSecondNode := RemovePrefix(matches[2], "@", p.Path)
+			to := RemovePrefix(relPathToSecondNode, p.Path, "")
 
-			var node = structs.Node{Id: id, Label: from}
+			sourceIdx, targetIdx := FindNodeByLabel(nodes, from, to)
 
-			to := RemovePrefix(RemovePrefix(matches[2], "@", p.Path), p.Path, "")
-			id += 1
+			//fmt.Println(sourceIdx, targetIdx, from, to)
 
-			var secondNode = structs.Node{Id: id, Label: to}
+			var node structs.Node
 
-			var edge = structs.Edge{From: id - 1, To: id}
-			var attrs []structs.Attr
+			var secondNode structs.Node
 
-			var lastAttrType = ""
-
-			for _, el := range descMatches {
-				m := descRe.FindStringSubmatch(el[0])
-
-				fKey := strings.TrimSpace(m[1]) // type of attr
-				sKey := strings.TrimSpace(m[2]) // key
-				tKey := strings.TrimSpace(m[3]) // value
-
-				if lastAttrType != "" {
-					if lastAttrType != fKey {
-						attrs = attrs[:0]
-					}
-				}
-
-				attrs = append(attrs, structs.Attr{
-					Key:   sKey,
-					Value: tKey,
-				})
-
-				if fKey == "Node" {
-					node.Attributes = append(node.Attributes, attrs...)
-					lastAttrType = "Node"
-				} else {
-					edge.Attributes = append(edge.Attributes, attrs...)
-					lastAttrType = "Edge"
-				}
+			if sourceIdx != -1 {
+				node = nodes[sourceIdx]
+			} else {
+				node = structs.Node{Id: from, Label: from}
 			}
+
+			if targetIdx != -1 {
+				secondNode = nodes[targetIdx]
+			} else {
+				secondNode = structs.Node{Id: to, Label: to}
+			}
+
+			var edge = structs.Edge{From: from, To: to}
+
+			nodeAttrs, edgeAttrs := utils.OpenFileAndReturnNode(entry.Path)
+			// Apply to root node and edge
+			node.Attributes = nodeAttrs
+			edge.Attributes = edgeAttrs
+
+			// Apply to second node
+			secondNodeAttrs, _ := utils.OpenFileAndReturnNode(relPathToSecondNode)
+			secondNode.Attributes = secondNodeAttrs
 
 			nodes = append(nodes, node, secondNode)
 			edges = append(edges, edge)
 		}
 	}
-	//
-	//fmt.Println(edges)
-	//fmt.Println(nodes)
 
-	utils.GenerateChart(nodes, edges)
+	if len(nodes) <= 0 {
+		c := color.New(color.BgRed, color.Bold, color.FgHiWhite)
+		c.Println("Can't create graph, no data were collected")
+	} else {
+		utils.GenerateChart(nodes, edges, p.OutputFolder, p.OutputName)
+	}
 }
 
 func RemovePrefix(s string, p string, v string) string {
@@ -141,4 +132,16 @@ func GetChildren(path string, name string) ([]structs.Element, error) {
 	}
 
 	return children, nil
+}
+
+func FindNodeByLabel(nodes []structs.Node, from string, to string) (int, int) {
+	for i := range nodes {
+		if nodes[i].Label == from {
+			return i, -1
+		}
+		if nodes[i].Label == to {
+			return -1, i
+		}
+	}
+	return -1, -1
 }

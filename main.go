@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	parser := lib.Parse("./test")
+	parser := lib.Parse("./test", "output", "graph")
 
 	parser.Generate()
 }
