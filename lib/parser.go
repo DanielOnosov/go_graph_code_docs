@@ -1,4 +1,4 @@
-package main
+package docParser
 
 import (
 	"github.com/DaksinWorld/go_graph_code_docs/structs"
