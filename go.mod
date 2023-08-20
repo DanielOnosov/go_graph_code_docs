@@ -1,4 +1,4 @@
-module graph-docs-golang
+module github.com/DaksinWorld/go_graph_code_docs
 
 go 1.20
 
