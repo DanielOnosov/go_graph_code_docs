@@ -41,7 +41,7 @@ func OpenFileAndReturnNode(path string) ([]structs.Attr, []structs.Attr) {
 
 	contentStr := string(content)
 
-	descPatter := `//\s*C##\s*(.*?)=\s*(.*?):\s*(.*?)(?:\n|$)`
+	descPatter := `//\s*DOC##\s*(.*?)=\s*(.*?):\s*(.*?)(?:\n|$)`
 	descRe := regexp.MustCompile(descPatter)
 	descMatches := descRe.FindAllStringSubmatch(contentStr, -1)
 

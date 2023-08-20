@@ -43,7 +43,7 @@ func (p *Parser) Generate(params ...[]structs.Attr) {
 
 		contentStr := string(content)
 
-		pattern := `//\s*C#\s*(.*?)\s*->\s*(.*?)\n`
+		pattern := `//\s*DOC#\s*(.*?)\s*->\s*(.*?)\n`
 		re := regexp.MustCompile(pattern)
 		matches := re.FindStringSubmatch(contentStr)
 

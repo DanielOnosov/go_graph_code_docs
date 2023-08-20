@@ -1,3 +1,5 @@
 package routes
 
-// C# @ -> @/service/node.go
+// DOC# @ -> @/service/node.go
+// DOC## Node = color: white
+// DOC## Node = fontcolor: white
