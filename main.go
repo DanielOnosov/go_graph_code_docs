@@ -17,16 +17,16 @@ type Parser struct {
 	OutputFolder string
 }
 
-func InitParser(path string, outputFolder string, outputName string) *Parser {
+func initParser(path string, outputFolder string, outputName string) *Parser {
 	return &Parser{Path: path, OutputFolder: outputFolder, OutputName: outputName}
 }
 
 func Parse(path string, outputFolder string, outputName string) *Parser {
-	return InitParser(path, outputFolder, outputName)
+	return initParser(path, outputFolder, outputName)
 }
 
 func (p *Parser) Generate() {
-	entries, err := GetChildren(p.Path, "")
+	entries, err := getChildren(p.Path, "")
 
 	if err != nil {
 		log.Fatal(err)
@@ -48,13 +48,11 @@ func (p *Parser) Generate() {
 		matches := re.FindStringSubmatch(contentStr)
 
 		if len(matches) > 2 {
-			from := RemovePrefix(entry.Path, p.Path, "")
-			relPathToSecondNode := RemovePrefix(matches[2], "@", p.Path)
-			to := RemovePrefix(relPathToSecondNode, p.Path, "")
+			from := removePrefix(entry.Path, p.Path, "")
+			relPathToSecondNode := removePrefix(matches[2], "@", p.Path)
+			to := removePrefix(relPathToSecondNode, p.Path, "")
 
-			sourceIdx, targetIdx := FindNodeByLabel(nodes, from, to)
-
-			//fmt.Println(sourceIdx, targetIdx, from, to)
+			sourceIdx, targetIdx := findNodeByLabel(nodes, from, to)
 
 			var node structs.Node
 
@@ -96,11 +94,11 @@ func (p *Parser) Generate() {
 	}
 }
 
-func RemovePrefix(s string, p string, v string) string {
+func removePrefix(s string, p string, v string) string {
 	return strings.Replace(s, p, v, 1)
 }
 
-func GetChildren(path string, name string) ([]structs.Element, error) {
+func getChildren(path string, name string) ([]structs.Element, error) {
 	if name != "" {
 		path = path + "/" + name
 	}
@@ -119,7 +117,7 @@ func GetChildren(path string, name string) ([]structs.Element, error) {
 
 	for _, file := range files {
 		if file.IsDir() {
-			nestedChildren, err := GetChildren(path, file.Name())
+			nestedChildren, err := getChildren(path, file.Name())
 
 			if err != nil {
 				log.Fatal(err)
@@ -134,7 +132,7 @@ func GetChildren(path string, name string) ([]structs.Element, error) {
 	return children, nil
 }
 
-func FindNodeByLabel(nodes []structs.Node, from string, to string) (int, int) {
+func findNodeByLabel(nodes []structs.Node, from string, to string) (int, int) {
 	for i := range nodes {
 		if nodes[i].Label == from {
 			return i, -1
