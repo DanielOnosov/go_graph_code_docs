@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"graph-docs-golang/structs"
+	"github.com/DaksinWorld/go_graph_code_docs/structs"
 	"io/ioutil"
 	"log"
 	"os"
