@@ -13,7 +13,7 @@ func CreateOutputFolder(path string) {
 	_, err := os.Stat(path)
 
 	if os.IsNotExist(err) {
-		err := os.Mkdir(path, os.ModeDir)
+		err := os.Mkdir(path, 0777)
 
 		if err != nil {
 			log.Fatal(err)
@@ -25,7 +25,7 @@ func CreateOutputFolder(path string) {
 			log.Fatal(err)
 		}
 
-		err = os.Mkdir(path, os.ModePerm)
+		err = os.Mkdir(path, 0777)
 
 		if err != nil {
 			log.Fatal(err)

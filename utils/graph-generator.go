@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"github.com/DaksinWorld/go_graph_code_docs/structs"
@@ -15,11 +14,17 @@ import (
 	"os"
 )
 
-func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder string, outputName string) {
+func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder string, outputName string, params ...[]structs.Attr) {
 	g := graph.New(graph.StringHash, graph.Directed())
 
 	for _, node := range nodes {
 		var attrs []func(properties *graph.VertexProperties)
+
+		if len(params) >= 1 {
+			for _, a := range params[0] {
+				attrs = append(attrs, graph.VertexAttribute(a.Key, a.Value))
+			}
+		}
 
 		for _, attr := range node.Attributes {
 			attrs = append(attrs, graph.VertexAttribute(attr.Key, attr.Value))
@@ -32,6 +37,12 @@ func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder stri
 
 	for _, edge := range edges {
 		var attrs []func(*graph.EdgeProperties)
+
+		if len(params) >= 2 {
+			for _, a := range params[1] {
+				attrs = append(attrs, graph.EdgeAttribute(a.Key, a.Value))
+			}
+		}
 
 		for _, attr := range edge.Attributes {
 			attrs = append(attrs, graph.EdgeAttribute(attr.Key, attr.Value))
@@ -48,7 +59,7 @@ func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder stri
 		fmt.Println(err.Error())
 	}
 
-	err = draw.DOT(g, file, draw.GraphAttribute("rankdir", "LR"))
+	err = draw.DOT(g, file, draw.GraphAttribute("rankdir", "LR"), draw.GraphAttribute("bgcolor", "#111111"))
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -71,20 +82,29 @@ func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder stri
 	err = png.Encode(&imageBuf, image)
 
 	if err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 
-	fo, err := os.Create(fmt.Sprintf("./%s/", outputFolder) + outputName + ".png")
+	var svgBuf bytes.Buffer
+	err = gT.Render(graphV, graphviz.SVG, &svgBuf)
 
-	defer fo.Close()
-	c := color.New(color.FgCyan, color.Bold)
-	defer c.Println("Successfully created graph.")
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	svg, err := os.Create(fmt.Sprintf("./%s/", outputFolder) + outputName + ".svg")
+	svg.Write(svgBuf.Bytes())
+
+	png, err := os.Create(fmt.Sprintf("./%s/", outputFolder) + outputName + ".png")
 	if err != nil {
 		log.Panic(err)
 	}
+	png.Write(imageBuf.Bytes())
 
-	fw := bufio.NewWriter(fo)
+	defer png.Close()
 
-	fw.Write(imageBuf.Bytes())
+	// FINISH STATUS
+	c := color.New(color.FgCyan, color.Bold)
+	defer c.Println("Successfully created graph.")
+
 }
