@@ -50,7 +50,7 @@ func (p *Parser) Generate() {
 		matches := re.FindAllStringSubmatch(contentStr, -1)
 
 		// Get all lines, check if they exists
-		if len(matches) > 1 {
+		if len(matches) >= 1 {
 			for _, arrayWithNode := range matches {
 				// Check if line has it own pattern
 				if len(arrayWithNode) > 2 {
