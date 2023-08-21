@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/DaksinWorld/go_graph_code_docs/structs"
-	"github.com/DaksinWorld/go_graph_code_docs/themes"
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
 	"github.com/fatih/color"
@@ -16,7 +15,7 @@ import (
 	"strings"
 )
 
-func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder string, outputName string, title string, theme themes.Theme) {
+func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder string, outputName string, title string, theme structs.Theme) {
 	g := graph.New(graph.StringHash, graph.Directed())
 	var titleOfGraph string
 

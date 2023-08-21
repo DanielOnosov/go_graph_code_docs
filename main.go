@@ -2,7 +2,6 @@ package docParser
 
 import (
 	"github.com/DaksinWorld/go_graph_code_docs/structs"
-	"github.com/DaksinWorld/go_graph_code_docs/themes"
 	"github.com/DaksinWorld/go_graph_code_docs/utils"
 	"github.com/fatih/color"
 	"io/ioutil"
@@ -17,7 +16,7 @@ type Parser struct {
 	OutputName   string
 	OutputFolder string
 	Title        string
-	Theme        themes.Theme
+	Theme        structs.Theme
 }
 
 func initParser(path string, outputFolder string, outputName string) *Parser {
@@ -48,44 +47,52 @@ func (p *Parser) Generate() {
 
 		pattern := `//\s*DOC#\s*(.*?)\s*->\s*(.*?)\n`
 		re := regexp.MustCompile(pattern)
-		matches := re.FindStringSubmatch(contentStr)
+		matches := re.FindAllStringSubmatch(contentStr, -1)
 
-		if len(matches) > 2 {
-			from := removePrefix(entry.Path, p.Path, "")
-			relPathToSecondNode := removePrefix(matches[2], "@", p.Path)
-			to := removePrefix(relPathToSecondNode, p.Path, "")
+		// Get all lines, check if they exists
+		if len(matches) > 1 {
+			for _, arrayWithNode := range matches {
+				// Check if line has it own pattern
+				if len(arrayWithNode) > 2 {
+					from := removePrefix(entry.Path, p.Path, "")
+					relPathToSecondNode := removePrefix(arrayWithNode[2], "@", p.Path)
+					to := removePrefix(relPathToSecondNode, p.Path, "")
 
-			sourceIdx, targetIdx := findNodeByLabel(nodes, from, to)
+					sourceIdx, targetIdx := findNodeByLabel(nodes, from, to)
 
-			var node structs.Node
+					var node structs.Node
 
-			var secondNode structs.Node
+					var targetNode structs.Node
 
-			if sourceIdx != -1 {
-				node = nodes[sourceIdx]
-			} else {
-				node = structs.Node{Id: from, Label: from}
+					// If Source Node already exists don't create a new one
+					if sourceIdx != -1 {
+						node = nodes[sourceIdx]
+					} else {
+						node = structs.Node{Id: from, Label: from}
+					}
+
+					// If Target Node already exists don't create a new one
+					if targetIdx != -1 {
+						targetNode = nodes[targetIdx]
+					} else {
+						targetNode = structs.Node{Id: to, Label: to}
+					}
+
+					var edge = structs.Edge{From: from, To: to}
+
+					nodeAttrs, edgeAttrs := utils.OpenFileAndReturnNode(entry.Path)
+					// Apply to root node and edge
+					node.Attributes = nodeAttrs
+					edge.Attributes = edgeAttrs
+
+					// Apply to second node
+					targetNodeAttrs, _ := utils.OpenFileAndReturnNode(relPathToSecondNode)
+					targetNode.Attributes = targetNodeAttrs
+
+					nodes = append(nodes, node, targetNode)
+					edges = append(edges, edge)
+				}
 			}
-
-			if targetIdx != -1 {
-				secondNode = nodes[targetIdx]
-			} else {
-				secondNode = structs.Node{Id: to, Label: to}
-			}
-
-			var edge = structs.Edge{From: from, To: to}
-
-			nodeAttrs, edgeAttrs := utils.OpenFileAndReturnNode(entry.Path)
-			// Apply to root node and edge
-			node.Attributes = nodeAttrs
-			edge.Attributes = edgeAttrs
-
-			// Apply to second node
-			secondNodeAttrs, _ := utils.OpenFileAndReturnNode(relPathToSecondNode)
-			secondNode.Attributes = secondNodeAttrs
-
-			nodes = append(nodes, node, secondNode)
-			edges = append(edges, edge)
 		}
 	}
 
@@ -101,7 +108,7 @@ func (p *Parser) AddTitle(title string) {
 	p.Title = title
 }
 
-func (p *Parser) AddTheme(theme themes.Theme) {
+func (p *Parser) AddTheme(theme structs.Theme) {
 	p.Theme = theme
 }
 

@@ -23,3 +23,8 @@ type Edge struct {
 	From       string
 	To         string
 }
+
+type Theme struct {
+	Name        string
+	CollOfAttrs [][]Attr
+}

@@ -10,7 +10,7 @@ func main() {
 
 	parser.AddTitle("Process of node interaction")
 
-	parser.AddTheme(themes.DarkTheme)
+	parser.AddTheme(themes.LightTheme)
 
 	parser.Generate()
 }
