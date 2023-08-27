@@ -67,7 +67,10 @@ func (p *Parser) Generate() {
 		c := color.New(color.BgRed, color.Bold, color.FgHiWhite)
 		c.Println("Can't create graph, no data were collected")
 	} else {
-		utils.GenerateChart(nodes, edges, p.OutputFolder, p.OutputName, p.Title, p.Theme)
+		err := utils.GenerateChart(nodes, edges, p.OutputFolder, p.OutputName, p.Title, p.Theme)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

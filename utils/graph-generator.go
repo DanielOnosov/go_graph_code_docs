@@ -15,7 +15,7 @@ import (
 	"strings"
 )
 
-func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder string, outputName string, title string, theme structs.Theme) {
+func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder string, outputName string, title string, theme structs.Theme) error {
 	g := graph.New(graph.StringHash, graph.Directed())
 	var titleOfGraph string
 
@@ -88,14 +88,7 @@ func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder stri
 		draw.GraphAttribute("label", titleOfGraph),
 	)
 
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	b, err := ioutil.ReadFile(fmt.Sprintf("./%s/", outputFolder) + outputName + ".gv")
-	if err != nil {
-		log.Fatal(err)
-	}
+	b, _ := ioutil.ReadFile(fmt.Sprintf("./%s/", outputFolder) + outputName + ".gv")
 
 	graphV, err := graphviz.ParseBytes(b)
 	gT := graphviz.New()
@@ -105,33 +98,38 @@ func GenerateChart(nodes []structs.Node, edges []structs.Edge, outputFolder stri
 		log.Fatal(err)
 	}
 
-	var imageBuf bytes.Buffer
-	err = png.Encode(&imageBuf, image)
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	var pngBuf bytes.Buffer
+	_ = png.Encode(&pngBuf, image)
 
 	var svgBuf bytes.Buffer
 	err = gT.Render(graphV, graphviz.SVG, &svgBuf)
 
+	err = createImages(pngBuf, svgBuf, outputFolder, outputName)
+
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	svg, err := os.Create(fmt.Sprintf("./%s/", outputFolder) + outputName + ".svg")
-	svg.Write(svgBuf.Bytes())
-
-	png, err := os.Create(fmt.Sprintf("./%s/", outputFolder) + outputName + ".png")
-	if err != nil {
-		log.Panic(err)
-	}
-	png.Write(imageBuf.Bytes())
-
-	defer png.Close()
 
 	// FINISH STATUS
 	c := color.New(color.FgCyan, color.Bold)
 	defer c.Println("Successfully created graph.")
 
+	return nil
+}
+
+func createImages(pngBuf bytes.Buffer, svgBuf bytes.Buffer, outputFolder string, outputName string) error {
+	svg, _ := os.Create(fmt.Sprintf("./%s/", outputFolder) + outputName + ".svg")
+	svg.Write(svgBuf.Bytes())
+
+	svg.Close()
+
+	png, err := os.Create(fmt.Sprintf("./%s/", outputFolder) + outputName + ".png")
+	if err != nil {
+		log.Panic(err)
+	}
+	png.Write(pngBuf.Bytes())
+
+	png.Close()
+
+	return nil
 }
