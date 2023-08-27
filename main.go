@@ -54,43 +54,10 @@ func (p *Parser) Generate() {
 			for _, arrayWithNode := range matches {
 				// Check if line has it own pattern
 				if len(arrayWithNode) > 2 {
-					from := removePrefix(entry.Path, p.Path, "")
-					relPathToSecondNode := removePrefix(arrayWithNode[2], "@", p.Path)
-					to := removePrefix(relPathToSecondNode, p.Path, "")
+					newNodes, newEdges := CreateNodesAndEdges(p, nodes, edges, entry, arrayWithNode)
 
-					sourceIdx, targetIdx := findNodeByLabel(nodes, from, to)
-
-					var node structs.Node
-
-					var targetNode structs.Node
-
-					// If Source Node already exists don't create a new one
-					if sourceIdx != -1 {
-						node = nodes[sourceIdx]
-					} else {
-						node = structs.Node{Id: from, Label: from}
-					}
-
-					// If Target Node already exists don't create a new one
-					if targetIdx != -1 {
-						targetNode = nodes[targetIdx]
-					} else {
-						targetNode = structs.Node{Id: to, Label: to}
-					}
-
-					var edge = structs.Edge{From: from, To: to}
-
-					nodeAttrs, edgeAttrs := utils.OpenFileAndReturnNode(entry.Path)
-					// Apply to root node and edge
-					node.Attributes = nodeAttrs
-					edge.Attributes = edgeAttrs
-
-					// Apply to second node
-					targetNodeAttrs, _ := utils.OpenFileAndReturnNode(relPathToSecondNode)
-					targetNode.Attributes = targetNodeAttrs
-
-					nodes = append(nodes, node, targetNode)
-					edges = append(edges, edge)
+					nodes = newNodes
+					edges = newEdges
 				}
 			}
 		}
@@ -102,6 +69,48 @@ func (p *Parser) Generate() {
 	} else {
 		utils.GenerateChart(nodes, edges, p.OutputFolder, p.OutputName, p.Title, p.Theme)
 	}
+}
+
+func CreateNodesAndEdges(p *Parser, nodes []structs.Node, edges []structs.Edge, entry structs.Element, arrayWithNodeMatches []string) ([]structs.Node, []structs.Edge) {
+	from := removePrefix(entry.Path, p.Path, "")
+	relPathToSecondNode := removePrefix(arrayWithNodeMatches[2], "@", p.Path)
+	to := removePrefix(relPathToSecondNode, p.Path, "")
+
+	sourceIdx, targetIdx := findNodeByLabel(nodes, from, to)
+
+	var node structs.Node
+
+	var targetNode structs.Node
+
+	// If Source Node already exists don't create a new one
+	if sourceIdx != -1 {
+		node = nodes[sourceIdx]
+	} else {
+		node = structs.Node{Id: from, Label: from}
+	}
+
+	// If Target Node already exists don't create a new one
+	if targetIdx != -1 {
+		targetNode = nodes[targetIdx]
+	} else {
+		targetNode = structs.Node{Id: to, Label: to}
+	}
+
+	var edge = structs.Edge{From: from, To: to}
+
+	nodeAttrs, edgeAttrs := utils.OpenFileAndReturnNode(entry.Path)
+	// Apply to root node and edge
+	node.Attributes = nodeAttrs
+	edge.Attributes = edgeAttrs
+
+	// Apply to second node
+	targetNodeAttrs, _ := utils.OpenFileAndReturnNode(relPathToSecondNode)
+	targetNode.Attributes = targetNodeAttrs
+
+	nodes = append(nodes, node, targetNode)
+	edges = append(edges, edge)
+
+	return nodes, edges
 }
 
 func (p *Parser) AddTitle(title string) {

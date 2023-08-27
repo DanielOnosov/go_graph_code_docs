@@ -1,76 +1,109 @@
-# go_graph_code_docs
-Utility for generating an image graph for code documentation, helps to better depict the process of interaction of the business logic of one file with another file
-Output: .gv, .png, .svg
 
-## Quick start
+# go_graph_code_docs: Graph Visualization Tool for Code Documentation
 
-### Usage reference
+[![GitHub License](https://img.shields.io/github/license/DaksinWorld/go_graph_code_docs)](https://github.com/DaksinWorld/go_graph_code_docs/blob/main/LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/DaksinWorld/go_graph_code_docs)](https://goreportcard.com/report/github.com/DaksinWorld/go_graph_code_docs)
+
+## Description
+
+The **go_graph_code_docs** utility is built on Graphviz and designed to facilitate the generation of graph charts for code documentation. It provides a visual representation of how different components of business logic interact across files. The tool outputs graph files in various formats, such as `.gv`, `.png`, and `.svg`.
+
+## Installation
+
+Install the package into your Go project using the following command:
+
+```bash
+go get github.com/DaksinWorld/go_graph_code_docs
+```
+
+## Example
+
+Consider the following directory structure that you want to document:
+
+```
+my-app/     # Root directory.
+|- src/          # Source directory.
+|- output/       # Directory for generated charts (created automatically)
+|- main.go       # Execution file.
+```
+
+## Getting Started
+
+Set up the package in your Go application as shown below:
 
 ```go
-package your_package
+package main
 
 import (
-	// import library
 	"github.com/DaksinWorld/go_graph_code_docs"
 	"github.com/DaksinWorld/go_graph_code_docs/themes"
+	// ...
 )
 
 func main() {
-	// Specify path to folder to be parsed | name of output directory | name of file with graph
-	parser := docParser.Parse("./app", "output", "graph")
+	parser := docParser.Parse("./src", "output", "graph")
 
-	// Add title to graph, which will be generated if necessary
-	parser.AddTitle("Process of node interaction")
+	parser.AddTitle("Process of Node Interaction")
 
-	// Enable theme if required
 	parser.AddTheme(themes.LightTheme)
 
-	// Generate output
 	parser.Generate()
 }
 ```
 
-### Syntax
-We specified root folder as `./app`
+## Defining Node and Edge Relationships
 
-In `./app` folder we have `./routes/` folder
+Assuming you have files in the `src` folder like:
 
-In `./routes/` folder we have `./routes/index.go` file and `./routes/main.go`, `./routes/node.go`
-
-```go
-./routes/index.go
-
-package routes
-
-// Because our root folder is ./app, @ in @/routes/index.go is ./app,
-// So it will replace @ on ./app, in result we will have ./app/routes/index.go,
-// Which is basically path from main.go file to index.go
-// So we always add prefix DOC# and @ as source node,
-// Then we provide path as describe above to node using -> 
-
-// DOC# @ -> @/routes/node.go 
-// DOC# @ -> @/routes/main.go
-
-// We use DOC## to specify attributes, Name of object (could be Node or Edge) and property, for example: height: 3
-// List of attributes is available describe below
-
-// DOC## Node = height: 3
-// DOC## Edge = color: red
-
-func InitRoutes(){
-    ...
-}
+```
+src/routes/index.go
+src/routes/posts.go
+src/routes/users.go
 ```
 
-### Attributes
+The library automatically generates a graph chart to visualize how these files interact. You need to define the connections for each file:
+
+```go
+// src/routes/index.go 
+package routes
+
+// DOC# @ -> @/routes/posts.go
+// DOC# @ -> @/routes/users.go
+// DOC## Node = Description: Initialize all routes
+```
+
+In this example, the root folder is `./src`, so `@` in `@/routes/index.go` refers to `./src`. The library will replace `@` with `./src`, in result we will have `./src/routes/index.go`,
+Which is basically path from main.go (program execution file) to index.go
+
+So we always add prefix `DOC#` and `@` as source node.
+
+Then we provide path as describe above to node using `->`
+So in result we have:
+
+![graph.png](graph.png)
+
+### Node and edges attributes
+
+#### Syntax
+
+We use DOC## prefix to show our program, that following line will apply attributes to source node or edge.
+Then we specify element that we would like to apply attributes: `Node` or `Edge`.
+See all available attributes below
+
+```go
+// DOC## Node = Description: Initialize all routes
+// DOC## Edge = height: 2
+
+// DOC## [Node or Edge] = [Attribute name]: [Attribute value]
+```
+
+#### Attributes
 List of available attributes is available [here](https://graphviz.org/doc/info/attrs.html)
 
-### Custom attributes:
+#### Custom attributes:
 
 **Only for Nodes!**:
 
 ```// DOC## Node = Description: Initialize all routes```
 
-So in result we have:
-
-![graph.png](graph.png)
+To be added...
