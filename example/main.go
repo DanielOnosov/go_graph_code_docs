@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/DaksinWorld/go_graph_code_docs"
 	"github.com/DaksinWorld/go_graph_code_docs/themes"
+	"log"
 )
 
 func main() {
@@ -12,5 +13,7 @@ func main() {
 
 	parser.AddTheme(themes.LightTheme)
 
-	parser.Generate()
+	err := parser.Generate()
+
+	log.Fatal(err)
 }

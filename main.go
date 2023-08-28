@@ -27,11 +27,11 @@ func Parse(path string, outputFolder string, outputName string) *Parser {
 	return initParser(path, outputFolder, outputName)
 }
 
-func (p *Parser) Generate() {
+func (p *Parser) Generate() error {
 	entries, err := getChildren(p.Path, "")
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	var nodes []structs.Node
@@ -40,7 +40,7 @@ func (p *Parser) Generate() {
 	for _, entry := range entries {
 		content, err := ioutil.ReadFile(entry.Path)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		contentStr := string(content)
@@ -69,9 +69,11 @@ func (p *Parser) Generate() {
 	} else {
 		err := utils.GenerateChart(nodes, edges, p.OutputFolder, p.OutputName, p.Title, p.Theme)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 	}
+
+	return nil
 }
 
 func CreateNodesAndEdges(p *Parser, nodes []structs.Node, edges []structs.Edge, entry structs.Element, arrayWithNodeMatches []string) ([]structs.Node, []structs.Edge) {

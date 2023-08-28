@@ -107,3 +107,26 @@ List of available attributes is available [here](https://graphviz.org/doc/info/a
 ```// DOC## Node = Description: Initialize all routes```
 
 To be added...
+
+
+### Contributing
+
+Pull requests are welcome. For major changes, please open an issue first
+to discuss what you would like to change.
+
+#### Before committing code, please ensure to check the following:
+
+- **Descriptive Naming**: Utilize meaningful names for variables, functions, and classes to clearly convey their purpose.
+- **Consistent Formatting**: Adhere to a consistent coding style encompassing indentation, spacing, and brace placement.
+- **Modular Functions**: Maintain functions that center on singular tasks, fostering both readability and reusability.
+- **Purposeful Comments**: Include comments for intricate sections, emphasizing explanations of the 'why' rather than just the 'what'.
+- **Eliminate Redundancy**: Remove redundant code, unused variables, and unnecessary functions to minimize clutter and confusion.
+
+
+#### Tips for writing good commit messages:
+
+* **Be Specific**: Describe what was done, not why or how. The commit message should focus on the change itself.
+* **Use Present**: Tense: Write in the present tense, as if you're giving a command (e.g., "Add feature" instead of "Added feature").
+* **Stay Concise**: Keep the summary line concise while providing enough information to convey the change's purpose.
+* **Separate Concerns**: If you're making multiple changes, consider splitting them into separate commits with appropriate messages.
+* **Proofread**: Well-written commit messages reflect professionalism and attention to detail.
