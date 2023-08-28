@@ -108,7 +108,6 @@ List of available attributes is available [here](https://graphviz.org/doc/info/a
 
 To be added...
 
-
 ### Contributing
 
 Pull requests are welcome. For major changes, please open an issue first
